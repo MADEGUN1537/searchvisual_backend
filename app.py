@@ -8,8 +8,6 @@ import bcrypt
 
 app = Flask(__name__)
 
-# CORS setup
-CORS(app, origins=['https://madegun1537.github.io'], supports_credentials=True)
 
 OPENVERSE_API_BASE = "https://api.openverse.engineering/v1"
 PEXELS_API_KEY = "F6EjgGWyOfrdxCaWKJ7jUOhL8Eg3BxVc4UHZdkoSGXUjUgGx3ph3Ogyf"
