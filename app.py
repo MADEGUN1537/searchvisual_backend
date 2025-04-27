@@ -57,10 +57,11 @@ def init_db():
 init_db()
 @app.after_request
 def after_request(response):
+    # Add CORS headers to the response
     response.headers.add('Access-Control-Allow-Origin', 'https://madegun1537.github.io')
     response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-    response.headers.add('Access-Control-Allow-Credentials', 'true')  # <-- ADD THIS LINE
+    response.headers.add('Access-Control-Allow-Credentials', 'true')  # <-- Ensures credentials are allowed
     return response
 
 @app.route('/api/auth/signup', methods=['POST'])
@@ -95,6 +96,12 @@ def signup():
 @app.route('/api/auth/login', methods=['POST', 'OPTIONS'])
 def login():
     if request.method == 'OPTIONS':
+        # This handles CORS preflight request
+        response = jsonify({'message': 'CORS preflight'})
+        response.headers.add('Access-Control-Allow-Origin', 'https://madegun1537.github.io')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        response.headers.add('Access-Control-Allow-Credentials', 'true')  # <-- Make sure this is here
         return response, 200
 
     data = request.get_json()
