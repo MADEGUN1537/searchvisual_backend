@@ -57,10 +57,12 @@ def init_db():
 init_db()
 @app.after_request
 def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')
+    # Ensure proper CORS headers are set
+    response.headers.add('Access-Control-Allow-Origin', 'https://madegun1537.github.io')
     response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
     return response
+
 @app.route('/api/auth/signup', methods=['POST'])
 def signup():
     data = request.get_json()
@@ -80,7 +82,6 @@ def signup():
     try:
         conn = get_db_connection()
         cur = conn.cursor()
-        # Store the hashed password as it is (no conversion needed)
         cur.execute("INSERT INTO users (username, email, password) VALUES (%s, %s, %s)", (username, email, hashed_password))
         conn.commit()
         cur.close()
