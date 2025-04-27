@@ -55,6 +55,12 @@ def init_db():
 
 # Initialize the database when the application starts
 init_db()
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    return response
 @app.route('/api/auth/signup', methods=['POST'])
 def signup():
     data = request.get_json()
