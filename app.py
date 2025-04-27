@@ -68,8 +68,8 @@ def signup():
     if password != confirm_password:
         return jsonify({"error": "Passwords do not match."}), 400
 
-    # Hash password using bcrypt
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    # Hash password using bcrypt and convert to string
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
     try:
         conn = get_db_connection()
@@ -83,16 +83,15 @@ def signup():
         return jsonify({"error": "Email already exists."}), 409
     except Exception as e:
         return jsonify({"error": "Database error", "details": str(e)}), 500
-
+        
 @app.route('/api/auth/login', methods=['POST', 'OPTIONS'])
 def login():
     if request.method == 'OPTIONS':
-        # This handles CORS preflight request
         response = jsonify({'message': 'CORS preflight'})
         response.headers.add('Access-Control-Allow-Origin', 'https://madegun1537.github.io')
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
         response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
-        response.headers.add('Access-Control-Allow-Credentials', 'true')  # <-- Make sure this is here
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
         return response, 200
 
     data = request.get_json()
@@ -123,7 +122,7 @@ def login():
 
     except Exception as e:
         return jsonify({"error": "Database error", "details": str(e)}), 500
-
+        
 @app.route('/search-history', methods=['GET'])
 def get_search_history():
     user_id = request.args.get('user_id')
