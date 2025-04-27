@@ -56,6 +56,8 @@ def init_db():
 # Initialize the database when the application starts
 init_db()
 
+import bcrypt
+
 @app.route('/api/auth/signup', methods=['POST'])
 def signup():
     data = request.get_json()
@@ -69,6 +71,7 @@ def signup():
     if password != confirm_password:
         return jsonify({"error": "Passwords do not match."}), 400
 
+    # Ensure the password is hashed correctly
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     try:
@@ -102,6 +105,7 @@ def login():
         conn.close()
 
         if user:
+            # Correctly compare the provided password with the hashed password
             stored_password_hash = user["password"].encode('utf-8')
             if bcrypt.checkpw(password.encode('utf-8'), stored_password_hash):
                 return jsonify({"message": "Login successful!", "user_id": user["id"]}), 200
