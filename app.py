@@ -119,8 +119,13 @@ def login():
         cur.close()
         conn.close()
 
-        if user and bcrypt.checkpw(password.encode('utf-8'), user["password"].encode('utf-8')):  # Use .encode() here
-            return jsonify({"message": "Login successful!", "user_id": user["id"]}), 200
+        if user:
+            # Ensure user["password"] is correctly interpreted as a byte string
+            stored_password_hash = user["password"].encode('utf-8')  # Encode to bytes if not already
+            if bcrypt.checkpw(password.encode('utf-8'), stored_password_hash):  # Compare as byte strings
+                return jsonify({"message": "Login successful!", "user_id": user["id"]}), 200
+            else:
+                return jsonify({"error": "Invalid credentials."}), 401
         else:
             return jsonify({"error": "Invalid credentials."}), 401
 
