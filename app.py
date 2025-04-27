@@ -77,6 +77,7 @@ def signup():
     if password != confirm_password:
         return jsonify({"error": "Passwords do not match."}), 400
 
+    # Generate a bcrypt salt and hash the password
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     try:
@@ -121,8 +122,8 @@ def login():
 
         if user:
             # Ensure user["password"] is correctly interpreted as a byte string
-            stored_password_hash = user["password"].encode('utf-8')  # Encode to bytes if not already
-            if bcrypt.checkpw(password.encode('utf-8'), stored_password_hash):  # Compare as byte strings
+            stored_password_hash = user["password"].encode('utf-8')  # Ensure it's byte-encoded
+            if bcrypt.checkpw(password.encode('utf-8'), stored_password_hash):  # Compare byte strings
                 return jsonify({"message": "Login successful!", "user_id": user["id"]}), 200
             else:
                 return jsonify({"error": "Invalid credentials."}), 401
