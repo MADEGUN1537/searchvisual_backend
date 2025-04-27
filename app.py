@@ -92,8 +92,16 @@ def signup():
     except Exception as e:
         return jsonify({"error": "Database error", "details": str(e)}), 500
 
-@app.route('/api/auth/login', methods=['POST'])
+@app.route('/api/auth/login', methods=['POST', 'OPTIONS'])
 def login():
+    if request.method == 'OPTIONS':
+        # This handles CORS preflight request
+        response = jsonify({'message': 'CORS preflight'})
+        response.headers.add('Access-Control-Allow-Origin', 'https://madegun1537.github.io')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        return response, 200
+
     data = request.get_json()
     email = data.get("email")
     password = data.get("password")
@@ -110,13 +118,13 @@ def login():
         conn.close()
 
         if user:
-            # Get the stored password hash from the database
             stored_password_hash = user["password"]
 
-            # Check if the entered password matches the stored hash (must be in bytes for bcrypt)
             if bcrypt.checkpw(password.encode('utf-8'), stored_password_hash.encode('utf-8')):
-
-                return jsonify({"message": "Login successful!", "user_id": user["id"]}), 200
+                response = jsonify({"message": "Login successful!", "user_id": user["id"]})
+                response.headers.add('Access-Control-Allow-Origin', 'https://madegun1537.github.io')
+                response.headers.add('Access-Control-Allow-Credentials', 'true')
+                return response, 200
             else:
                 return jsonify({"error": "Invalid credentials."}), 401
         else:
