@@ -8,6 +8,7 @@ import bcrypt
 
 app = Flask(__name__)
 
+CORS(app, origins=['https://madegun1537.github.io'], supports_credentials=True)
 
 OPENVERSE_API_BASE = "https://api.openverse.engineering/v1"
 PEXELS_API_KEY = "F6EjgGWyOfrdxCaWKJ7jUOhL8Eg3BxVc4UHZdkoSGXUjUgGx3ph3Ogyf"
@@ -53,14 +54,6 @@ def init_db():
 
 # Initialize the database when the application starts
 init_db()
-@app.after_request
-def after_request(response):
-    # Add CORS headers to the response
-    response.headers.add('Access-Control-Allow-Origin', 'https://madegun1537.github.io')
-    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-    response.headers.add('Access-Control-Allow-Credentials', 'true')  # <-- Ensures credentials are allowed
-    return response
 
 @app.route('/api/auth/signup', methods=['POST'])
 def signup():
