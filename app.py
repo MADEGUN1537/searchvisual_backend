@@ -114,7 +114,7 @@ def login():
 
             # Check if the entered password matches the stored hash (must be in bytes for bcrypt)
             if bcrypt.checkpw(password.encode('utf-8'), stored_password_hash.encode('utf-8')):
-:
+
                 return jsonify({"message": "Login successful!", "user_id": user["id"]}), 200
             else:
                 return jsonify({"error": "Invalid credentials."}), 401
