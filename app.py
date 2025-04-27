@@ -55,9 +55,6 @@ def init_db():
 
 # Initialize the database when the application starts
 init_db()
-
-import bcrypt
-
 @app.route('/api/auth/signup', methods=['POST'])
 def signup():
     data = request.get_json()
@@ -71,7 +68,7 @@ def signup():
     if password != confirm_password:
         return jsonify({"error": "Passwords do not match."}), 400
 
-    # Ensure the password is hashed correctly
+    # Ensure the password is hashed properly using bcrypt
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     try:
@@ -86,7 +83,6 @@ def signup():
         return jsonify({"error": "Email already exists."}), 409
     except Exception as e:
         return jsonify({"error": "Database error", "details": str(e)}), 500
-
 @app.route('/api/auth/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -105,9 +101,11 @@ def login():
         conn.close()
 
         if user:
-            # Correctly compare the provided password with the hashed password
-            stored_password_hash = user["password"].encode('utf-8')
-            if bcrypt.checkpw(password.encode('utf-8'), stored_password_hash):
+            # Get the stored password hash from the database
+            stored_password_hash = user["password"]
+
+            # Compare the entered password with the stored hash using bcrypt
+            if bcrypt.checkpw(password.encode('utf-8'), stored_password_hash.encode('utf-8')):
                 return jsonify({"message": "Login successful!", "user_id": user["id"]}), 200
             else:
                 return jsonify({"error": "Invalid credentials."}), 401
