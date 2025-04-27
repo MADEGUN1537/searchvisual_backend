@@ -68,12 +68,13 @@ def signup():
     if password != confirm_password:
         return jsonify({"error": "Passwords do not match."}), 400
 
-    # Ensure the password is hashed properly using bcrypt
+    # Hash password using bcrypt
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     try:
         conn = get_db_connection()
         cur = conn.cursor()
+        # Store the hashed password as it is (no conversion needed)
         cur.execute("INSERT INTO users (username, email, password) VALUES (%s, %s, %s)", (username, email, hashed_password))
         conn.commit()
         cur.close()
@@ -83,6 +84,7 @@ def signup():
         return jsonify({"error": "Email already exists."}), 409
     except Exception as e:
         return jsonify({"error": "Database error", "details": str(e)}), 500
+
 @app.route('/api/auth/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -104,7 +106,7 @@ def login():
             # Get the stored password hash from the database
             stored_password_hash = user["password"]
 
-            # Compare the entered password with the stored hash using bcrypt
+            # Check if the entered password matches the stored hash (must be in bytes for bcrypt)
             if bcrypt.checkpw(password.encode('utf-8'), stored_password_hash.encode('utf-8')):
                 return jsonify({"message": "Login successful!", "user_id": user["id"]}), 200
             else:
