@@ -7,6 +7,8 @@ from datetime import datetime
 import bcrypt
 
 app = Flask(__name__)
+
+# CORS setup
 CORS(app, supports_credentials=True, origins=["https://madegun1537.github.io", "http://localhost:8080"])
 
 OPENVERSE_API_BASE = "https://api.openverse.engineering/v1"
@@ -54,18 +56,8 @@ def init_db():
 # Initialize the database when the application starts
 init_db()
 
-@app.route('/api/auth/signup', methods=['POST', 'OPTIONS'])
+@app.route('/api/auth/signup', methods=['POST'])
 def signup():
-    if request.method == 'OPTIONS':
-        response = jsonify({'status': 'OK'})
-        origin = request.headers.get('Origin')  # Get the origin dynamically
-        if origin in ["https://madegun1537.github.io", "http://localhost:8080"]:
-            response.headers.add("Access-Control-Allow-Origin", origin)
-        response.headers.add("Access-Control-Allow-Headers", "Content-Type")
-        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
-        response.headers.add("Access-Control-Allow-Credentials", "true")
-        return response
-
     data = request.get_json()
     username = data.get("username")
     email = data.get("email")
@@ -77,7 +69,6 @@ def signup():
     if password != confirm_password:
         return jsonify({"error": "Passwords do not match."}), 400
 
-    # Generate a bcrypt salt and hash the password
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     try:
@@ -93,18 +84,8 @@ def signup():
     except Exception as e:
         return jsonify({"error": "Database error", "details": str(e)}), 500
 
-@app.route('/api/auth/login', methods=['POST', 'OPTIONS'])
+@app.route('/api/auth/login', methods=['POST'])
 def login():
-    if request.method == 'OPTIONS':
-        response = jsonify({'status': 'OK'})
-        origin = request.headers.get('Origin')
-        if origin in ["http://localhost:8080", "https://madegun1537.github.io"]:
-            response.headers.add("Access-Control-Allow-Origin", origin)
-        response.headers.add("Access-Control-Allow-Headers", "Content-Type")
-        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
-        response.headers.add("Access-Control-Allow-Credentials", "true")
-        return response
-
     data = request.get_json()
     email = data.get("email")
     password = data.get("password")
@@ -121,9 +102,8 @@ def login():
         conn.close()
 
         if user:
-            # Ensure user["password"] is correctly interpreted as a byte string
-            stored_password_hash = user["password"].encode('utf-8')  # Ensure it's byte-encoded
-            if bcrypt.checkpw(password.encode('utf-8'), stored_password_hash):  # Compare byte strings
+            stored_password_hash = user["password"].encode('utf-8')
+            if bcrypt.checkpw(password.encode('utf-8'), stored_password_hash):
                 return jsonify({"message": "Login successful!", "user_id": user["id"]}), 200
             else:
                 return jsonify({"error": "Invalid credentials."}), 401
