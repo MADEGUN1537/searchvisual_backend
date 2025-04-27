@@ -9,7 +9,6 @@ import bcrypt
 app = Flask(__name__)
 CORS(app, supports_credentials=True, origins=["https://madegun1537.github.io", "http://localhost:8080"])
 
-
 OPENVERSE_API_BASE = "https://api.openverse.engineering/v1"
 PEXELS_API_KEY = "F6EjgGWyOfrdxCaWKJ7jUOhL8Eg3BxVc4UHZdkoSGXUjUgGx3ph3Ogyf"
 PEXELS_VIDEO_API = "https://api.pexels.com/videos/search"
@@ -22,9 +21,12 @@ def get_db_connection():
     return conn
 
 def init_db():
+    print("Initializing Database...")
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('''
+
+    # Create users table if not exists
+    cur.execute(''' 
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             username TEXT NOT NULL,
@@ -32,7 +34,9 @@ def init_db():
             password TEXT NOT NULL
         )
     ''')
-    cur.execute('''
+
+    # Create search_history table if not exists
+    cur.execute(''' 
         CREATE TABLE IF NOT EXISTS search_history (
             id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL,
@@ -41,9 +45,14 @@ def init_db():
             search_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+
     conn.commit()
     cur.close()
     conn.close()
+    print("Database initialized!")
+
+# Initialize the database when the application starts
+init_db()
 
 @app.route('/api/auth/signup', methods=['POST', 'OPTIONS'])
 def signup():
@@ -56,7 +65,6 @@ def signup():
         response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
         response.headers.add("Access-Control-Allow-Credentials", "true")
         return response
-
 
     data = request.get_json()
     username = data.get("username")
@@ -193,5 +201,4 @@ def search_media():
         return jsonify({"error": "Invalid media type"}), 400
 
 if __name__ == '__main__':
-    init_db()
     app.run(debug=True)
