@@ -55,13 +55,6 @@ def init_db():
 
 # Initialize the database when the application starts
 init_db()
-@app.after_request
-def after_request(response):
-    # Ensure proper CORS headers are set
-    response.headers.add('Access-Control-Allow-Origin', 'https://madegun1537.github.io')
-    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-    return response
 
 @app.route('/api/auth/signup', methods=['POST'])
 def signup():
@@ -95,11 +88,6 @@ def signup():
 @app.route('/api/auth/login', methods=['POST', 'OPTIONS'])
 def login():
     if request.method == 'OPTIONS':
-        # This handles CORS preflight request
-        response = jsonify({'message': 'CORS preflight'})
-        response.headers.add('Access-Control-Allow-Origin', 'https://madegun1537.github.io')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
         return response, 200
 
     data = request.get_json()
@@ -122,8 +110,6 @@ def login():
 
             if bcrypt.checkpw(password.encode('utf-8'), stored_password_hash.encode('utf-8')):
                 response = jsonify({"message": "Login successful!", "user_id": user["id"]})
-                response.headers.add('Access-Control-Allow-Origin', 'https://madegun1537.github.io')
-                response.headers.add('Access-Control-Allow-Credentials', 'true')
                 return response, 200
             else:
                 return jsonify({"error": "Invalid credentials."}), 401
