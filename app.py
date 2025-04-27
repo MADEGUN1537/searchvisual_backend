@@ -49,11 +49,14 @@ def init_db():
 def signup():
     if request.method == 'OPTIONS':
         response = jsonify({'status': 'OK'})
-        response.headers.add("Access-Control-Allow-Origin", "http://localhost:8080")
+        origin = request.headers.get('Origin')  # Get the origin dynamically
+        if origin in ["https://madegun1537.github.io", "http://localhost:8080"]:
+            response.headers.add("Access-Control-Allow-Origin", origin)
         response.headers.add("Access-Control-Allow-Headers", "Content-Type")
         response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
         response.headers.add("Access-Control-Allow-Credentials", "true")
         return response
+
 
     data = request.get_json()
     username = data.get("username")
@@ -85,7 +88,9 @@ def signup():
 def login():
     if request.method == 'OPTIONS':
         response = jsonify({'status': 'OK'})
-        response.headers.add("Access-Control-Allow-Origin", "http://localhost:8080")
+        origin = request.headers.get('Origin')
+        if origin in ["http://localhost:8080", "https://madegun1537.github.io"]:
+            response.headers.add("Access-Control-Allow-Origin", origin)
         response.headers.add("Access-Control-Allow-Headers", "Content-Type")
         response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
         response.headers.add("Access-Control-Allow-Credentials", "true")
